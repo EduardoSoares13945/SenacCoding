@@ -157,7 +157,7 @@ INSERT INTO Produto (nome, detalhes, preco, tamanho, cor, marca, id_categoria, s
 ('Saia', 'Design floral leve.', 89.90, 'P', 'Rosa', 'Forever 21', 2, 'ativo', 7, 'Para dias de verão.'),
 ('Moletom', 'Com capuz e bolso frontal.', 119.90, 'G', 'Cinza', 'Gap', 4, 'ativo', 8, 'Super confortável.'),
 ('Camisa Polo', 'Corte clássico.', 99.90, 'M', 'Azul Marinho', 'Lacoste', 1, 'ativo', 9, 'Para ocasiões casuais.'),
-('Macacão', 'Peça única e estilosa.', 189.90, 'U', 'Preto', 'Levi\'s', 5, 'ativo', 10, 'Tecido jeans.');
+('Macacão', 'Peça única e estilosa.', 189.90, 'U', 'Preto', 'Levi\'s, 5, 'ativo', 10, 'Tecido jeans.');
 
 INSERT INTO Estoque (id_produto, quantidade_disponivel) VALUES
 (1, 50),
