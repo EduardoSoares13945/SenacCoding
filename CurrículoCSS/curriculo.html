@@ -8,12 +8,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="img/DevIcon.png" type="image/png">
     <link rel="stylesheet" href="bootstrap-5.3.5-dist/css/bootstrap.min.css">
-<!--    <link rel="stylesheet" href="style.css"> -->
+    <!--    <link rel="stylesheet" href="style.css"> -->
     <title>Currículo Pessoal</title>
 </head>
 
 <body>
-    <div class="container text-center">
+    <div class="container text-center position-fixed top-0 start-0 w-100 bg-light">
         <h3>
             <a href="#sobre">Sobre</a>
             <a href="#formacao">Formação</a>
@@ -29,11 +29,18 @@
         <img src="img/EduardoPic.jpg" alt="Foto de Eduardo Soares" title="Eduardo Soares" width="250px">
     </div>
     <hr>
-
-    <h2  id="sobre">Sobre</h2>
-    <p>Sou Técnico em Informática, e estou fazendo graduação em Análise e Desenvolvimento de Sistemas. Atualmente, tenho
-        conhecimentos em Hardware, Software, Redes e Programação. Já trabalhei em alguns projetos, como CriticLevel e
-        Núria.</p>
+    <div>
+        <h2 id="sobre">Sobre</h2>
+        <p>Sou Técnico em Informática, e estou fazendo graduação em Análise e Desenvolvimento de Sistemas. Atualmente,
+            tenho
+            conhecimentos em Hardware, Software, Redes e Programação. Já trabalhei em alguns projetos, como CriticLevel
+            e
+            Núria. Estou sempre buscando aprender mais e me aprimorar na área de tecnologia. Tenho interesse em
+            desenvolvimento de
+            software, manutenção de sistemas e suporte técnico. Além disso, gosto de ler livros e artigos sobre
+            tecnologia e
+            programação.</p>
+    </div>
 
     <p><b>Contato:</b>
     <dl>
@@ -53,7 +60,7 @@
         <img src="img/GitHubLogo.png" alt="Logo do GitHub" title="GitHub" width="200px">
     </a>
     <hr>
-    <h2  id="formacao">Formação</h2>
+    <h2 id="formacao">Formação</h2>
 
     <ol>
         <li><strong>Ensino Médio com Técnico em Informática (Completo)</strong></li>
@@ -69,7 +76,7 @@
             projetos de TI. Iniciado no 2º Período devido ao processo de Verticalização oferecida pela instituição.</dd>
     </ol>
     <hr>
-    <h2>Habilidades</h2>
+    <h2 id="habilidades">Habilidades</h2>
     <ul>
         <li>Manutenção de hardware</li>
         <li>Instalação e configuração de software</li>
@@ -83,7 +90,7 @@
         <li>Documentação técnica</li>
     </ul>
     <hr>
-    <h2>Endereço</h2>
+    <h2 id="endereco">Endereço</h2>
     <center>
         <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15802.881557704612!2d-34.89551885!3d-8.0277391!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7ab184015fad463%3A0x5f03f0f59cf4cda9!2sR.%20Oeste%2C%20118%20-%20Arruda%2C%20Recife%20-%20PE%2C%2052120-490!5e0!3m2!1spt-PT!2sbr!4v1743620778276!5m2!1spt-PT!2sbr"
@@ -91,23 +98,41 @@
             referrerpolicy="no-referrer-when-downgrade"></iframe>
     </center>
     <hr>
-    <h2>Hobbies</h2>
+    <h2 id="hobbies">Hobbies</h2>
 
-    <table border="1">
-        <tr>
-            <th>Atividade</th>
-            <th>Descrição</th>
-            <th>Exemplo</th>
-        </tr>
-        <tr>
-            <td>Ler</td>
-            <td>"Viver sem ler é perigoso, te obriga a crer no que te dizem."</td>
-            <td>Sisi Confidencial (Coisinhas) por Tião Carneiro</td>
-        </tr>
+    <div class="container text-center">
+        <div class="row">
+            <h3>Atividade</h3>
+        </div>
+        <div class="col-sm-4">
+            <h5>Ler</h5>
+        </div>
+        <div class="col-sm-4">
+            <h5>Assistir</h5>
+        </div>
+        <div class="col-sm-4">
+            <h5>Jogar</h5>
+        </div>
+        <div class="row">
+            <h3>Descrição</h3>
+        </div>
+        <div class="col-sm-4">
+            <h5>"Viver sem ler é perigoso, te obriga a crer no que te dizem."</h5>
+        </div>
+        <div class="col-sm-4">
+            <h5>Gosto de Ação, Animação e Comédia. Particurlamente, gosto de universos que são formados por filmes independentes e/ou continuações que expandem continuamente a história</h5>
+        </div>
+        <div class="col-sm-4">
+            <h5>Tenho um gosto por Plataformers e Hack-n-Slash.</h5>
+        </div>
+
+        <div class="row">
+            <h3>Exemplo</h3>
+            <h3>Sisi Confidencial (Coisinhas) por Tião Carneiro</h3>
+        </div>
         <tr>
             <td>Assistir</td>
-            <td>Gosto de Ação, Animação e Comédia. Prefiro que as histórias tenham continuidade e coesão com o que
-                aconteceu anteriormente.</td>
+            <td></td>
             <td>Star Wars</td>
         </tr>
         <tr>
@@ -115,9 +140,9 @@
             <td>Tenho um gosto por Plataformers e Hack-n-Slash.</td>
             <td>Sonic Unleashed</td>
         </tr>
-    </table>
+    </div>
     <hr>
-    <h2>Formulário de Reunião</h2>
+    <h2 id="formulario">Formulário de Reunião</h2>
     <fieldset>
         <form action="#" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
             <label for="firstName">Nome:</label>
@@ -127,7 +152,8 @@
             <input type="text" id="lastName" name="lastName" required><br><br>
 
             <label for="phone">Telefone:</label>
-            <input type="tel" id="phone" name="phone" pattern="\(\d{2}\) \d{4,5}-\d{4}" placeholder="(XX) XXXXX-XXXX" required><br><br>
+            <input type="tel" id="phone" name="phone" pattern="\(\d{2}\) \d{4,5}-\d{4}"
+                placeholder="(XX) XXXXX-XXXX" required><br><br>
 
             <label for="email">E-mail:</label>
             <input type="email" id="email" name="email" placeholder="exemplo@dominio.com" required><br><br>
@@ -144,7 +170,8 @@
             </select><br><br>
 
             <label for="prototype">Upload de protótipo:</label>
-            <input type="file" id="prototype" name="prototype" accept=".pdf, .doc, .docx, .jpeg, .png" required><br><br>
+            <input type="file" id="prototype" name="prototype" accept=".pdf, .doc, .docx, .jpeg, .png"
+                required><br><br>
 
             <label for="preferredLanguages">Linguagens preferidas:</label><br>
             <select id="preferredLanguages" name="preferredLanguages[]" multiple required>
