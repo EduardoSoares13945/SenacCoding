@@ -6,7 +6,7 @@
     --cor5: #034159;
     --corBranca: #FFFFFF;
     --corPreta: #000000;
-    --corCinza: #808080;
+    --corCinza: #dfdfdf;
 }
 
 .texto-justificado {
@@ -14,7 +14,7 @@
 }
 
 a.branco {
-    color: var(--corCinza);
+    color: var(--corBranca);
     text-decoration: none;
 }
 
@@ -24,13 +24,35 @@ a.branco:hover {
 
 body {
     background-color: var(--cor3);
-    color: var(--corBranca);
+    color: var(--corCinza);
     font-family: Arial, sans-serif;
     padding: 1em;
 }
 
 .bgCor {
     background-color: var(--cor2);
+    padding: 1em;
+    border-radius: 5px;
+}
+
+.texto-diferente {
+    color: var(--corPreta);
+    font-weight: bold;
+    font-size: smaller;
+}
+
+iframe {
+    width: 100%;
+    max-width: 1100px;
+    height: 320px;
+}
+
+.center {
+    text-align: center;
+}
+
+.bgCor2 {
+    background-color: var(--cor4);
     padding: 1em;
     border-radius: 5px;
 }
