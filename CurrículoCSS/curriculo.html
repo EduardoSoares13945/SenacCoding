@@ -8,22 +8,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="img/DevIcon.png" type="image/png">
     <link rel="stylesheet" href="bootstrap-5.3.5-dist/css/bootstrap.min.css">
-    <!--    <link rel="stylesheet" href="style.css"> -->
+    <link rel="stylesheet" href="style.css">
     <title>Currículo Pessoal</title>
 </head>
 
 <body>
-    <div class="container text-center position-fixed top-0 start-0 w-100 bg-light">
+    <div class="container-fluid text-center bgCor fixed-top">
         <h3>
-            <a href="#sobre">Sobre</a>
-            <a href="#formacao">Formação</a>
-            <a href="#habilidades">Habilidades</a>
-            <a href="#endereco">Endereço</a>
-            <a href="#hobbies">Hobbies</a>
-            <a href="#formulario">Formulário</a>
+            <a href="#sobre" class="branco">Sobre</a>
+            <a href="#formacao" class="branco">Formação</a>
+            <a href="#habilidades" class="branco">Habilidades</a>
+            <a href="#endereco" class="branco">Endereço</a>
+            <a href="#hobbies" class="branco">Hobbies</a>
+            <a href="#formulario" class="branco">Formulário</a>
         </h3>
     </div>
-    <div class="container text-center">
+    <div class="container text-center pt-5 mt-5">
         <h1>Eduardo Soares Ribeiro da Silva</h1>
         <h3>(Técnico em Informática)</h3>
         <img src="img/EduardoPic.jpg" alt="Foto de Eduardo Soares" title="Eduardo Soares" width="250px">
@@ -31,7 +31,8 @@
     <hr>
     <div>
         <h2 id="sobre">Sobre</h2>
-        <p>Sou Técnico em Informática, e estou fazendo graduação em Análise e Desenvolvimento de Sistemas. Atualmente,
+        <p class="texto-justificado">Sou Técnico em Informática, e estou fazendo graduação em Análise e Desenvolvimento
+            de Sistemas. Atualmente,
             tenho
             conhecimentos em Hardware, Software, Redes e Programação. Já trabalhei em alguns projetos, como CriticLevel
             e
@@ -45,19 +46,19 @@
     <p><b>Contato:</b>
     <dl>
         <dt><b>Telefone:</b></dt>
-        <dd><a href="tel:+5581973192433">+55 (81) 97319-2433</a></dd>
+        <dd><a href="tel:+5581973192433" class="branco">+55 (81) 97319-2433</a></dd>
         <dt><b>Email:</b></dt>
-        <dd><a href="mailto:eduardo.silva@edu.pe.senac.br">eduardo.silva@edu.pe.senac.br</a></dd>
+        <dd><a href="mailto:eduardo.silva@edu.pe.senac.br" class="branco">eduardo.silva@edu.pe.senac.br</a></dd>
     </dl>
     <br>
     <address>
-        Visite: <a href="https://faculdadesenacpe.edu.br" target="_blank">faculdadesenacpe.edu.br</a>
+        Visite: <a href="https://faculdadesenacpe.edu.br" class="branco" target="_blank">faculdadesenacpe.edu.br</a>
     </address>
     </p>
 
     <br>
-    <a href="https://github.com/EduardoSoares13945" target="_blank">
-        <img src="img/GitHubLogo.png" alt="Logo do GitHub" title="GitHub" width="200px">
+    <a href="https://github.com/EduardoSoares13945" class="branco" target="_blank"></a>
+    <img src="img/GitHubLogo.png" alt="Logo do GitHub" title="GitHub" width="200px">
     </a>
     <hr>
     <h2 id="formacao">Formação</h2>
@@ -99,47 +100,51 @@
     </center>
     <hr>
     <h2 id="hobbies">Hobbies</h2>
-
     <div class="container text-center">
         <div class="row">
-            <h3>Atividade</h3>
-        </div>
-        <div class="col-sm-4">
-            <h5>Ler</h5>
-        </div>
-        <div class="col-sm-4">
-            <h5>Assistir</h5>
-        </div>
-        <div class="col-sm-4">
-            <h5>Jogar</h5>
+            <div class="col">
+                <h3>Atividade</h3>
+            </div>
+            <div class="col">
+                <h3>Descrição</h3>
+            </div>
+            <div class="col">
+                <h3>Exemplo</h3>
+            </div>
         </div>
         <div class="row">
-            <h3>Descrição</h3>
+            <div class="col">
+                <h5>Ler</h5>
+            </div>
+            <div class="col">
+                <h5>"Viver sem ler é perigoso, te obriga a crer no que te dizem."</h5>
+            </div>
+            <div class="col">
+                <h5>Sisi Confidencial (Coisinhas) por Tião Carneiro</h5>
+            </div>
         </div>
-        <div class="col-sm-4">
-            <h5>"Viver sem ler é perigoso, te obriga a crer no que te dizem."</h5>
-        </div>
-        <div class="col-sm-4">
-            <h5>Gosto de Ação, Animação e Comédia. Particurlamente, gosto de universos que são formados por filmes independentes e/ou continuações que expandem continuamente a história</h5>
-        </div>
-        <div class="col-sm-4">
-            <h5>Tenho um gosto por Plataformers e Hack-n-Slash.</h5>
-        </div>
-
         <div class="row">
-            <h3>Exemplo</h3>
-            <h3>Sisi Confidencial (Coisinhas) por Tião Carneiro</h3>
+            <div class="col">
+                <h5>Assistir</h5>
+            </div>
+            <div class="col">
+                <h5>Assistir filmes é uma ótima forma de relaxar e explorar novas histórias.</h5>
+            </div>
+            <div class="col">
+                <h5>Star Wars</h5>
+            </div>
         </div>
-        <tr>
-            <td>Assistir</td>
-            <td></td>
-            <td>Star Wars</td>
-        </tr>
-        <tr>
-            <td>Jogar</td>
-            <td>Tenho um gosto por Plataformers e Hack-n-Slash.</td>
-            <td>Sonic Unleashed</td>
-        </tr>
+        <div class="row">
+            <div class="col">
+                <h5>Jogar</h5>
+            </div>
+            <div class="col">
+                <h5>Tenho um gosto por Plataformers e Hack-n-Slash.</h5>
+            </div>
+            <div class="col">
+                <h5>Sonic Unleashed</h5>
+            </div>
+        </div>
     </div>
     <hr>
     <h2 id="formulario">Formulário de Reunião</h2>
@@ -152,8 +157,8 @@
             <input type="text" id="lastName" name="lastName" required><br><br>
 
             <label for="phone">Telefone:</label>
-            <input type="tel" id="phone" name="phone" pattern="\(\d{2}\) \d{4,5}-\d{4}"
-                placeholder="(XX) XXXXX-XXXX" required><br><br>
+            <input type="tel" id="phone" name="phone" pattern="\(\d{2}\) \d{4,5}-\d{4}" placeholder="(XX) XXXXX-XXXX"
+                required><br><br>
 
             <label for="email">E-mail:</label>
             <input type="email" id="email" name="email" placeholder="exemplo@dominio.com" required><br><br>
@@ -170,8 +175,7 @@
             </select><br><br>
 
             <label for="prototype">Upload de protótipo:</label>
-            <input type="file" id="prototype" name="prototype" accept=".pdf, .doc, .docx, .jpeg, .png"
-                required><br><br>
+            <input type="file" id="prototype" name="prototype" accept=".pdf, .doc, .docx, .jpeg, .png" required><br><br>
 
             <label for="preferredLanguages">Linguagens preferidas:</label><br>
             <select id="preferredLanguages" name="preferredLanguages[]" multiple required>
