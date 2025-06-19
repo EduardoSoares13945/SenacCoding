@@ -1,3 +1,7 @@
+-- ================================================
+-- 8. PROCEDURES
+-- ================================================
+
 delimiter $$
 CREATE PROCEDURE RegistrarVenda (
     IN p_id_cliente INT,
@@ -114,3 +118,35 @@ BEGIN
     SET salario = salario + (salario * p_percentual / 100)
     WHERE cargo = p_cargo;
 END; $$
+
+-- Teste PRC 1
+CALL RegistrarVenda(1, 1, 2);
+CALL RegistrarVenda(3, 1, 4);
+SELECT * FROM Venda ORDER BY id_venda DESC LIMIT 1;
+SELECT * FROM Item_Venda ORDER BY id_item_venda DESC LIMIT 1;
+SELECT * FROM Estoque WHERE id_produto = 1;
+
+-- Teste PRC 2
+CALL AtualizarEstoqueManual(1, 999);
+SELECT * FROM Estoque WHERE id_produto = 1;
+
+-- Teste PRC 3
+CALL RelatorioVendasPorPeriodo('2024-03-01', '2024-04-30');
+
+-- Teste PRC 4
+CALL RelatorioEstoqueBaixo(30);
+
+-- Teste PRC 5
+CALL RegistrarCompraFornecedor(1, 1, 2, 3, 129.90);
+SELECT * FROM Compra ORDER BY id_compra DESC LIMIT 1;
+SELECT * FROM Item_Compra ORDER BY id_item_compra DESC LIMIT 1;
+SELECT * FROM Estoque WHERE id_produto = 2;
+
+-- Teste PRC 6
+CALL CadastrarCliente('Teste Cliente', '11912345678', 'teste@exemplo.com', '12312312312', 'M');
+CALL CadastrarCliente('Teste Cliente Repetido', '11912345678', 'teste@exemplo.com', '12312312312', 'M'); -- esse NÃO deve funcionar
+SELECT * FROM Cliente WHERE cpf = '12312312312';
+
+-- Teste PRC 7
+CALL AtualizarSalario('Vendedor', 10);
+SELECT nome, cargo, salario FROM Funcionario WHERE cargo = 'Vendedor';

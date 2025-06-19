@@ -1,4 +1,4 @@
--- Grupo: Eduardo Soares, Andrew Kaue e Pedro Moura
+-- Grupo: Eduardo Soares, Andrew Kauê e Pedro Moura
 -- Observacao: *Desative* o modo Seguro em Edit > Preferences > SQL Editor > "Safe Updates" para executar o script sem problemas.
 -- Executando de uma vez, o script pode demorar um pouco, mas não se preocupe, ele vai funcionar.
 
