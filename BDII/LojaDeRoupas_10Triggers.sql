@@ -1,32 +1,27 @@
 -- ================================================
 -- 10. TRIGGERS
 -- ================================================
+-- Trigger 1
 DELIMITER $$
-CREATE TRIGGER trg_before_insert_venda_vendas
-BEFORE INSERT ON Item_Venda
+CREATE TRIGGER trg_valida_valor_total_venda
+AFTER INSERT ON item_venda
 FOR EACH ROW
 BEGIN
-    DECLARE estoque_atual INT;
+  DECLARE valor_total_item DECIMAL(10,2);
+  
+  SET valor_total_item = NEW.quantidade * NEW.preco_unitario;
 
-    SELECT quantidade_disponivel
-    INTO estoque_atual
-    FROM Estoque
-    WHERE id_produto = NEW.id_produto;
-
-    IF estoque_atual < NEW.quantidade THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Estoque insuficiente para venda';
-    ELSE
-        UPDATE Estoque
-        SET quantidade_disponivel = estoque_atual - NEW.quantidade
-        WHERE id_produto = NEW.id_produto;
-    END IF;
-END; $$
+  UPDATE venda
+  SET valor_total = IFNULL(valor_total, 0) + valor_total_item
+  WHERE id_venda = NEW.id_venda;
+END;
+$$
 DELIMITER ;
 
+-- Trigger 2
 DELIMITER $$
 CREATE TRIGGER trg_before_insert_venda
-BEFORE INSERT ON Venda
+BEFORE INSERT ON venda
 FOR EACH ROW
 BEGIN
     IF NEW.data_venda IS NULL THEN
@@ -35,29 +30,28 @@ BEGIN
 END; $$
 DELIMITER ;
 
--- Essa daqui tem que ser modificada, viu?
-delimiter $$
-CREATE TRIGGER trg_after_update_produto
-AFTER UPDATE ON produto
+-- Trigger 3
+DELIMITER $$
+CREATE TRIGGER trg_update_data_ultima_venda
+AFTER INSERT ON venda
 FOR EACH ROW
 BEGIN
-  IF OLD.preco <> NEW.preco OR OLD.descricao <> NEW.descricao THEN
-    INSERT INTO historico_produto
-      (id_produto, data_alteracao, preco_antigo, preco_novo, desc_antiga, desc_nova)
-    VALUES
-      (OLD.id_produto, NOW(), OLD.preco, NEW.preco, OLD.descricao, NEW.descricao);
-  END IF;
+  UPDATE cliente
+  SET data_ultima_venda = NEW.data_venda
+  WHERE id_cliente = NEW.id_cliente;
 END;
-delimiter ;
+$$
+DELIMITER ;
 
+-- Trigger 4
 DELIMITER $$
 CREATE TRIGGER trg_before_delete_cliente
-BEFORE DELETE ON Cliente
+BEFORE DELETE ON cliente
 FOR EACH ROW
 BEGIN
     DECLARE cnt INT;
     SELECT COUNT(*) INTO cnt
-    FROM Venda
+    FROM venda
     WHERE id_cliente = OLD.id_cliente;
 
     IF cnt > 0 THEN
@@ -67,47 +61,63 @@ BEGIN
 END; $$
 DELIMITER ;
 
--- Mesma coisa essa aqui
-delimiter $$
-CREATE TRIGGER trg_after_update_Item_Venda
-AFTER UPDATE ON Item_Venda
+-- Trigger 5
+DELIMITER $$
+CREATE TRIGGER trg_bloqueia_venda_estoque_zero
+BEFORE INSERT ON item_venda
 FOR EACH ROW
 BEGIN
-  DECLARE total_itens INT;
-  DECLARE itens_entregues INT;
-  SELECT COUNT(*) INTO total_itens FROM Item_Venda WHERE id_venda = NEW.id_venda;
-  SELECT COUNT(*) INTO itens_entregues FROM Item_Venda WHERE id_venda = NEW.id_venda AND entregue = TRUE;
-  IF total_itens > 0 AND total_itens = itens_entregues THEN
-    UPDATE venda
-      SET status_pedido = 'ENTREGUE'
-      WHERE id_venda = NEW.id_venda;
+  DECLARE qtd_estoque INT;
+
+  SELECT quantidade_disponivel INTO qtd_estoque
+  FROM estoque
+  WHERE id_produto = NEW.id_produto;
+
+  IF qtd_estoque <= 0 THEN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'Estoque insuficiente para realizar a venda.';
   END IF;
 END;
-delimiter ;
+$$
+DELIMITER ;
 
--- e essa
-delimiter $$
-CREATE TRIGGER trg_after_insert_cliente
-AFTER INSERT ON cliente
+-- Trigger 6
+DELIMITER $$
+CREATE TRIGGER trg_atualiza_estoque_apos_venda
+AFTER INSERT ON item_venda
 FOR EACH ROW
 BEGIN
-  INSERT INTO mensagens_sistema (id_cliente, mensagem, data_envio)
-  VALUES (NEW.id_cliente, 'Bem-vindo(a) à nossa loja!', NOW());
+  UPDATE estoque
+  SET quantidade_disponivel = quantidade_disponivel - NEW.quantidade
+  WHERE id_produto = NEW.id_produto;
 END;
-delimiter ;
+$$
+DELIMITER ;
 
--- Teste do TRG 1
--- Pré-requisito: produto com quantidade suficiente (ex: id_produto = 1)
-UPDATE produto SET quantidade = 5 WHERE id_produto = 1;
+-- Teste TRG 1
+-- Variável para armazenar o último id_venda inserido
+SET @novo_id_venda = 0;
 
--- Teste com estoque suficiente
-INSERT INTO Item_Venda (id_venda, id_produto, quantidade) VALUES (1, 1, 2);
+-- Inserir uma nova venda com valor_total zerado
+INSERT INTO venda (id_cliente, valor_total)
+VALUES (1, 0.00);
 
--- Verificar se estoque foi decrementado
-SELECT quantidade FROM produto WHERE id_produto = 1;
+-- Capturar o último id_venda inserido
+SET @novo_id_venda = LAST_INSERT_ID();
 
--- Teste com estoque INSUFICIENTE (deve disparar erro)
-INSERT INTO Item_Venda (id_venda, id_produto, quantidade) VALUES (1, 1, 100);
+-- Inserir o primeiro item_venda usando o id capturado
+INSERT INTO item_venda (id_venda, id_produto, quantidade, preco_unitario)
+VALUES (@novo_id_venda, 1, 2, 50.00);
+
+-- Verificar o valor_total atualizado na venda
+SELECT valor_total FROM venda WHERE id_venda = @novo_id_venda;
+
+-- Inserir um segundo item_venda na mesma venda
+INSERT INTO item_venda (id_venda, id_produto, quantidade, preco_unitario)
+VALUES (@novo_id_venda, 2, 1, 80.00);
+
+-- Verificar o valor_total atualizado novamente
+SELECT valor_total FROM venda WHERE id_venda = @novo_id_venda;
 
 -- Teste do TRG 2
 -- Inserir venda sem data
@@ -116,6 +126,21 @@ INSERT INTO venda (id_cliente, valor_total) VALUES (1, 150.00);
 -- Verificar se a data foi preenchida corretamente
 SELECT * FROM venda ORDER BY id_venda DESC LIMIT 1;
 
+-- Teste do TRG 3
+-- Verifique o valor atual de data_ultima_venda do cliente
+SELECT id_cliente, nome, data_ultima_venda 
+FROM cliente 
+WHERE id_cliente = 1;
+
+-- Insira uma nova venda para esse cliente
+INSERT INTO venda (id_cliente, valor_total)
+VALUES (1, 100.00);
+
+-- Verifique novamente se data_ultima_venda foi atualizada
+SELECT id_cliente, nome, data_ultima_venda 
+FROM cliente 
+WHERE id_cliente = 1;
+
 -- Teste do TRG 4
 -- Cliente com vendas (ex: id_cliente = 1)
 DELETE FROM cliente WHERE id_cliente = 1; -- Deve falhar
@@ -123,5 +148,27 @@ DELETE FROM cliente WHERE id_cliente = 1; -- Deve falhar
 -- Cliente sem vendas (criar novo para teste)
 INSERT INTO cliente (nome, telefone, email, cpf, sexo)
 VALUES ('Teste Trigger', '11911111111', 'teste@x.com', '99999999999', 'M');
+
 DELETE FROM cliente WHERE cpf = '99999999999'; -- Deve funcionar
 
+-- Teste do TRG 5
+-- Zerar o estoque do produto 2
+UPDATE estoque SET quantidade_disponivel = 0 WHERE id_produto = 2;
+
+-- Tentar inserir item de venda com produto sem estoque
+-- Isso DEVE gerar um erro: 'Estoque insuficiente para realizar a venda.'
+INSERT INTO item_venda (id_venda, id_produto, quantidade, preco_unitario)
+VALUES (1, 2, 1, 50.00);
+
+-- Teste do TRG 6
+-- Ver estoque atual do produto 3
+SELECT quantidade_disponivel FROM estoque WHERE id_produto = 3;
+
+-- Inserir item de venda (quantidade 2)
+-- O estoque será reduzido automaticamente pela trigger
+INSERT INTO item_venda (id_venda, id_produto, quantidade, preco_unitario)
+VALUES (1, 3, 2, 80.00);
+
+-- Verificar se o estoque foi reduzido corretamente
+SELECT quantidade_disponivel FROM estoque WHERE id_produto = 3;
+-- Esperado: estoque reduzido em 2 unidades

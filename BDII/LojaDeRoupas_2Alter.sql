@@ -11,3 +11,4 @@ ALTER TABLE Promocao ADD COLUMN data_vencimento DATE;
 ALTER TABLE Cliente MODIFY telefone VARCHAR(30);
 ALTER TABLE Venda ADD COLUMN observacoes TEXT;
 ALTER TABLE Funcionario ADD COLUMN salario DECIMAL(10,2);
+ALTER TABLE cliente ADD COLUMN data_ultima_venda DATE DEFAULT NULL;

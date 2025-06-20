@@ -36,6 +36,7 @@ BEGIN
     SET quantidade_disponivel = quantidade_disponivel - p_quantidade
     WHERE id_produto = p_id_produto;
 END; $$
+
 delimiter $$
 CREATE PROCEDURE AtualizarEstoqueManual (
     IN p_id_produto INT,
@@ -57,6 +58,7 @@ BEGIN
     JOIN Cliente c ON v.id_cliente = c.id_cliente
     WHERE v.data_venda BETWEEN p_data_inicio AND p_data_fim;
 END;$$
+
 delimiter $$
 CREATE PROCEDURE RelatorioEstoqueBaixo (
     IN p_limite INT
@@ -67,6 +69,7 @@ BEGIN
     JOIN Estoque e ON p.id_produto = e.id_produto
     WHERE e.quantidade_disponivel < p_limite;
 END;$$
+
 delimiter $$
 CREATE PROCEDURE RegistrarCompraFornecedor (
     IN p_id_fornecedor INT,
@@ -94,6 +97,7 @@ BEGIN
     SET quantidade_disponivel = quantidade_disponivel + p_quantidade
     WHERE id_produto = p_id_produto;
 END;$$
+
 delimiter $$
 CREATE PROCEDURE CadastrarCliente (
     IN p_nome VARCHAR(100),
@@ -108,6 +112,7 @@ BEGIN
         VALUES (p_nome, p_telefone, p_email, p_cpf, p_sexo);
     END IF;
 END;$$
+
 delimiter $$
 CREATE PROCEDURE AtualizarSalario (
     IN p_cargo VARCHAR(50),

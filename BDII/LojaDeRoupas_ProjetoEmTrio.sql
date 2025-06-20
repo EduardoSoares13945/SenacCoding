@@ -2,6 +2,9 @@
 -- Observacao: *Desative* o modo Seguro em Edit > Preferences > SQL Editor > "Safe Updates" para executar o script sem problemas.
 -- Executando de uma vez, o script pode demorar um pouco, mas não se preocupe, ele vai funcionar.
 
+-- Observação 2: Os dois últimos testes de trigger vão impedir de executar o código inteiro sem erros
+-- Pois eles mostram que o código será interrompido caso as condições não sejam favoráveis.
+
 -- ================================================
 -- 1. CRIAÇÃO DAS TABELAS (DDL)
 -- ================================================
@@ -119,6 +122,7 @@ ALTER TABLE Promocao ADD COLUMN data_vencimento DATE;
 ALTER TABLE Cliente MODIFY telefone VARCHAR(30);
 ALTER TABLE Venda ADD COLUMN observacoes TEXT;
 ALTER TABLE Funcionario ADD COLUMN salario DECIMAL(10,2);
+ALTER TABLE cliente ADD COLUMN data_ultima_venda DATE DEFAULT NULL;
 
 -- ================================================
 -- 4. INSERTS COM DADOS (DML)
@@ -453,8 +457,9 @@ WHERE MONTH(v.data_venda) = MONTH(CURRENT_DATE)
 GROUP BY c.id_cliente;
 
 -- ================================================
--- 8. PROCEDURES 
+-- 8. PROCEDURES
 -- ================================================
+
 delimiter $$
 CREATE PROCEDURE RegistrarVenda (
     IN p_id_cliente INT,
@@ -489,6 +494,7 @@ BEGIN
     SET quantidade_disponivel = quantidade_disponivel - p_quantidade
     WHERE id_produto = p_id_produto;
 END; $$
+
 delimiter $$
 CREATE PROCEDURE AtualizarEstoqueManual (
     IN p_id_produto INT,
@@ -510,6 +516,7 @@ BEGIN
     JOIN Cliente c ON v.id_cliente = c.id_cliente
     WHERE v.data_venda BETWEEN p_data_inicio AND p_data_fim;
 END;$$
+
 delimiter $$
 CREATE PROCEDURE RelatorioEstoqueBaixo (
     IN p_limite INT
@@ -520,6 +527,7 @@ BEGIN
     JOIN Estoque e ON p.id_produto = e.id_produto
     WHERE e.quantidade_disponivel < p_limite;
 END;$$
+
 delimiter $$
 CREATE PROCEDURE RegistrarCompraFornecedor (
     IN p_id_fornecedor INT,
@@ -547,6 +555,7 @@ BEGIN
     SET quantidade_disponivel = quantidade_disponivel + p_quantidade
     WHERE id_produto = p_id_produto;
 END;$$
+
 delimiter $$
 CREATE PROCEDURE CadastrarCliente (
     IN p_nome VARCHAR(100),
@@ -561,6 +570,7 @@ BEGIN
         VALUES (p_nome, p_telefone, p_email, p_cpf, p_sexo);
     END IF;
 END;$$
+
 delimiter $$
 CREATE PROCEDURE AtualizarSalario (
     IN p_cargo VARCHAR(50),
@@ -571,6 +581,315 @@ BEGIN
     SET salario = salario + (salario * p_percentual / 100)
     WHERE cargo = p_cargo;
 END; $$
+
+-- Teste PRC 1
+CALL RegistrarVenda(1, 1, 2);
+CALL RegistrarVenda(3, 1, 4);
+SELECT * FROM Venda ORDER BY id_venda DESC LIMIT 1;
+SELECT * FROM Item_Venda ORDER BY id_item_venda DESC LIMIT 1;
+SELECT * FROM Estoque WHERE id_produto = 1;
+
+-- Teste PRC 2
+CALL AtualizarEstoqueManual(1, 999);
+SELECT * FROM Estoque WHERE id_produto = 1;
+
+-- Teste PRC 3
+CALL RelatorioVendasPorPeriodo('2024-03-01', '2024-04-30');
+
+-- Teste PRC 4
+CALL RelatorioEstoqueBaixo(30);
+
+-- Teste PRC 5
+CALL RegistrarCompraFornecedor(1, 1, 2, 3, 129.90);
+SELECT * FROM Compra ORDER BY id_compra DESC LIMIT 1;
+SELECT * FROM Item_Compra ORDER BY id_item_compra DESC LIMIT 1;
+SELECT * FROM Estoque WHERE id_produto = 2;
+
+-- Teste PRC 6
+CALL CadastrarCliente('Teste Cliente', '11912345678', 'teste@exemplo.com', '12312312312', 'M');
+CALL CadastrarCliente('Teste Cliente Repetido', '11912345678', 'teste@exemplo.com', '12312312312', 'M'); -- esse NÃO deve funcionar
+SELECT * FROM Cliente WHERE cpf = '12312312312';
+
+-- Teste PRC 7
+CALL AtualizarSalario('Vendedor', 10);
+SELECT nome, cargo, salario FROM Funcionario WHERE cargo = 'Vendedor';
+
+-- ================================================
+-- 9. FUNCTIONS
+-- ================================================
+DELIMITER $$
+CREATE FUNCTION fn_TotalComprasCliente(p_id_cliente INT)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE total DECIMAL(10,2);
+    SELECT SUM(valor_total) INTO total
+    FROM Venda
+    WHERE id_cliente = p_id_cliente;
+    RETURN IFNULL(total, 0.00);
+END; $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE FUNCTION fn_QuantidadeEstoqueProduto(p_id_produto INT)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE qtd INT;
+    SELECT quantidade_disponivel INTO qtd
+    FROM Estoque
+    WHERE id_produto = p_id_produto;
+    RETURN IFNULL(qtd, 0);
+END; $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE FUNCTION fn_DescontoProduto(p_id_produto INT)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE preco DECIMAL(10,2);
+    DECLARE desconto DECIMAL(5,2);
+    SELECT p.preco, IFNULL(pm.desconto_percentual, 0)
+    INTO preco, desconto
+    FROM Produto p
+    LEFT JOIN Promocao pm ON p.id_promocao = pm.id_promocao
+    WHERE p.id_produto = p_id_produto;
+    RETURN preco - (preco * desconto / 100);
+END; $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE FUNCTION fn_TotalItensVendidos(p_id_produto INT)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE total INT;
+    SELECT SUM(quantidade) INTO total
+    FROM Item_Venda
+    WHERE id_produto = p_id_produto;
+    RETURN IFNULL(total, 0);
+END; $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE FUNCTION fn_MaiorVendaCliente(p_id_cliente INT)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE maior DECIMAL(10,2);
+    SELECT MAX(valor_total) INTO maior
+    FROM Venda
+    WHERE id_cliente = p_id_cliente;
+    RETURN IFNULL(maior, 0.00);
+END; $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE FUNCTION fn_ValorTotalEstoque()
+RETURNS DECIMAL(15,2)
+DETERMINISTIC
+BEGIN
+    DECLARE total DECIMAL(15,2);
+    SELECT SUM(p.preco * e.quantidade_disponivel) INTO total
+    FROM Produto p
+    JOIN Estoque e ON p.id_produto = e.id_produto;
+    RETURN IFNULL(total, 0.00);
+END; $$
+DELIMITER ;
+
+-- Teste FNÇ 1
+SELECT fn_TotalComprasCliente(1) AS TotalGastoPorCliente1;
+
+-- Teste FNÇ 2
+SELECT fn_QuantidadeEstoqueProduto(1) AS EstoqueProduto1;
+
+-- Teste FNÇ 3
+SELECT fn_DescontoProduto(1) AS PrecoComDesconto;
+
+-- Teste FNÇ 4
+SELECT fn_TotalItensVendidos(1) AS ItensVendidosProduto1;
+
+-- Teste FNÇ 5
+SELECT fn_MaiorVendaCliente(1) AS MaiorVendaCliente1;
+
+-- Teste FNÇ 6
+SELECT fn_ValorTotalEstoque() AS ValorTotalEmEstoque;
+
+-- ================================================
+-- 10. TRIGGERS
+-- ================================================
+-- Trigger 1
+DELIMITER $$
+CREATE TRIGGER trg_valida_valor_total_venda
+AFTER INSERT ON item_venda
+FOR EACH ROW
+BEGIN
+  DECLARE valor_total_item DECIMAL(10,2);
+  
+  SET valor_total_item = NEW.quantidade * NEW.preco_unitario;
+
+  UPDATE venda
+  SET valor_total = IFNULL(valor_total, 0) + valor_total_item
+  WHERE id_venda = NEW.id_venda;
+END;
+$$
+DELIMITER ;
+
+-- Trigger 2
+DELIMITER $$
+CREATE TRIGGER trg_before_insert_venda
+BEFORE INSERT ON venda
+FOR EACH ROW
+BEGIN
+    IF NEW.data_venda IS NULL THEN
+        SET NEW.data_venda = CURRENT_DATE();
+    END IF;
+END; $$
+DELIMITER ;
+
+-- Trigger 3
+DELIMITER $$
+CREATE TRIGGER trg_update_data_ultima_venda
+AFTER INSERT ON venda
+FOR EACH ROW
+BEGIN
+  UPDATE cliente
+  SET data_ultima_venda = NEW.data_venda
+  WHERE id_cliente = NEW.id_cliente;
+END;
+$$
+DELIMITER ;
+
+-- Trigger 4
+DELIMITER $$
+CREATE TRIGGER trg_before_delete_cliente
+BEFORE DELETE ON cliente
+FOR EACH ROW
+BEGIN
+    DECLARE cnt INT;
+    SELECT COUNT(*) INTO cnt
+    FROM venda
+    WHERE id_cliente = OLD.id_cliente;
+
+    IF cnt > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Não é possível excluir cliente com vendas.';
+    END IF;
+END; $$
+DELIMITER ;
+
+-- Trigger 5
+DELIMITER $$
+CREATE TRIGGER trg_bloqueia_venda_estoque_zero
+BEFORE INSERT ON item_venda
+FOR EACH ROW
+BEGIN
+  DECLARE qtd_estoque INT;
+
+  SELECT quantidade_disponivel INTO qtd_estoque
+  FROM estoque
+  WHERE id_produto = NEW.id_produto;
+
+  IF qtd_estoque <= 0 THEN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'Estoque insuficiente para realizar a venda.';
+  END IF;
+END;
+$$
+DELIMITER ;
+
+-- Trigger 6
+DELIMITER $$
+CREATE TRIGGER trg_atualiza_estoque_apos_venda
+AFTER INSERT ON item_venda
+FOR EACH ROW
+BEGIN
+  UPDATE estoque
+  SET quantidade_disponivel = quantidade_disponivel - NEW.quantidade
+  WHERE id_produto = NEW.id_produto;
+END;
+$$
+DELIMITER ;
+
+-- Teste TRG 1
+-- Variável para armazenar o último id_venda inserido
+SET @novo_id_venda = 0;
+
+-- Inserir uma nova venda com valor_total zerado
+INSERT INTO venda (id_cliente, valor_total)
+VALUES (1, 0.00);
+
+-- Capturar o último id_venda inserido
+SET @novo_id_venda = LAST_INSERT_ID();
+
+-- Inserir o primeiro item_venda usando o id capturado
+INSERT INTO item_venda (id_venda, id_produto, quantidade, preco_unitario)
+VALUES (@novo_id_venda, 1, 2, 50.00);
+
+-- Verificar o valor_total atualizado na venda
+SELECT valor_total FROM venda WHERE id_venda = @novo_id_venda;
+
+-- Inserir um segundo item_venda na mesma venda
+INSERT INTO item_venda (id_venda, id_produto, quantidade, preco_unitario)
+VALUES (@novo_id_venda, 2, 1, 80.00);
+
+-- Verificar o valor_total atualizado novamente
+SELECT valor_total FROM venda WHERE id_venda = @novo_id_venda;
+
+-- Teste do TRG 2
+-- Inserir venda sem data
+INSERT INTO venda (id_cliente, valor_total) VALUES (1, 150.00);
+
+-- Verificar se a data foi preenchida corretamente
+SELECT * FROM venda ORDER BY id_venda DESC LIMIT 1;
+
+-- Teste do TRG 3
+-- Verifique o valor atual de data_ultima_venda do cliente
+SELECT id_cliente, nome, data_ultima_venda 
+FROM cliente 
+WHERE id_cliente = 1;
+
+-- Insira uma nova venda para esse cliente
+INSERT INTO venda (id_cliente, valor_total)
+VALUES (1, 100.00);
+
+-- Verifique novamente se data_ultima_venda foi atualizada
+SELECT id_cliente, nome, data_ultima_venda 
+FROM cliente 
+WHERE id_cliente = 1;
+
+-- Teste do TRG 4
+-- Cliente com vendas (ex: id_cliente = 1)
+DELETE FROM cliente WHERE id_cliente = 1; -- Deve falhar
+
+-- Cliente sem vendas (criar novo para teste)
+INSERT INTO cliente (nome, telefone, email, cpf, sexo)
+VALUES ('Teste Trigger', '11911111111', 'teste@x.com', '99999999999', 'M');
+
+DELETE FROM cliente WHERE cpf = '99999999999'; -- Deve funcionar
+
+-- Teste do TRG 5
+-- Zerar o estoque do produto 2
+UPDATE estoque SET quantidade_disponivel = 0 WHERE id_produto = 2;
+
+-- Tentar inserir item de venda com produto sem estoque
+-- Isso DEVE gerar um erro: 'Estoque insuficiente para realizar a venda.'
+INSERT INTO item_venda (id_venda, id_produto, quantidade, preco_unitario)
+VALUES (1, 2, 1, 50.00);
+
+-- Teste do TRG 6
+-- Ver estoque atual do produto 3
+SELECT quantidade_disponivel FROM estoque WHERE id_produto = 3;
+
+-- Inserir item de venda (quantidade 2)
+-- O estoque será reduzido automaticamente pela trigger
+INSERT INTO item_venda (id_venda, id_produto, quantidade, preco_unitario)
+VALUES (1, 3, 2, 80.00);
+
+-- Verificar se o estoque foi reduzido corretamente
+SELECT quantidade_disponivel FROM estoque WHERE id_produto = 3;
+-- Esperado: estoque reduzido em 2 unidades
 
 -- ================================================
 -- 3. SCRIPT PARA DESTRUIR TUDO (DROP)
@@ -586,4 +905,10 @@ DROP TABLE IF EXISTS Produto;
 DROP TABLE IF EXISTS Categoria;
 DROP TABLE IF EXISTS Funcionario;
 DROP TABLE IF EXISTS Promocao;
+DROP TRIGGER IF EXISTS trg_valida_valor_total_venda;
+DROP TRIGGER IF EXISTS trg_before_insert_venda;
+DROP TRIGGER IF EXISTS trg_update_data_ultima_venda;
+DROP TRIGGER IF EXISTS trg_before_delete_cliente;
+DROP TRIGGER IF EXISTS trg_bloqueia_venda_estoque_zero;
+DROP TRIGGER IF EXISTS trg_atualiza_estoque_apos_venda;
 DROP DATABASE IF EXISTS LojaDeRoupas;
